@@ -2,10 +2,9 @@ package com.code.FirstSpringAPI.Controllers;
 
 import com.code.FirstSpringAPI.Models.Product;
 import com.code.FirstSpringAPI.Services.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -26,11 +25,20 @@ public class ProductController
     // Get a Product By Id
     //localhost:8080/products/1
     @GetMapping("/{id}")
-    public Product getProductById(@PathVariable("id") Long id)
+    public ResponseEntity<Product> getProductById(@PathVariable("id") Long id)
     {
         // Call FakeStore API Here to get the Product with given id.
-        RestTemplate restTemplate = new RestTemplate();
-        return productService.getProductById(id);
+        Product product = productService.getProductById(id);
+
+        ResponseEntity<Product> responseEntity;
+
+        if(product == null)
+        {
+            responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return responseEntity;
+        }
+        return new ResponseEntity<>(product, HttpStatus.OK);
+
     }
 
     // Get All Products
@@ -38,13 +46,20 @@ public class ProductController
     @GetMapping()
     public List<Product> getAllProducts()
     {
-        return new ArrayList<>();
+
+        return productService.getAllProducts();
     }
 
     // create a new Product
     // delete a product
     // update a product - Partial Update (PATCH)
     // replace product - Replace (PUT)
+
+    @PutMapping("{id}")
+    public Product replaceProduct(@PathVariable("id")  long id, @RequestBody Product product)
+    {
+        return replaceProduct(id,product);
+    }
 
 
 }
